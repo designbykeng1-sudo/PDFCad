@@ -2290,7 +2290,8 @@ window.addEventListener('keydown', e => {
   const tag = (e.target.tagName || '').toLowerCase();
   if (tag === 'textarea' || (tag === 'input' && ['text', 'number', 'search'].includes(e.target.type))) return;
   if (tag === 'select' && !e.ctrlKey && !e.metaKey) e.preventDefault();
-  const K = e.key.toLowerCase(), mod = e.ctrlKey || e.metaKey;
+  // physical key (e.code) so shortcuts work on any keyboard layout, e.g. Thai: L key = 'ส'
+  const K = /^Key[A-Z]$/.test(e.code || '') ? e.code.slice(3).toLowerCase() : e.key.toLowerCase(), mod = e.ctrlKey || e.metaKey;
   if (mod && K === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
   if (mod && K === 'y') { e.preventDefault(); redo(); return; }
   if (mod && K === 'a') { e.preventDefault(); if (!S.pdf) return; if (S.tool !== 'select') setTool('select'); setSel(S.anns.filter(a => a.page === S.page).map(a => a.id)); syncPanel(); renderList(); redraw(); toast(`เลือก ${S.sels.length} รายการในหน้านี้`); return; }
@@ -2313,7 +2314,7 @@ window.addEventListener('keydown', e => {
   if (e.key === 'Enter' && temp && temp.waiting) { temp = null; S.hover = null; redraw(); return; }
   if (e.key === 'PageDown') { e.preventDefault(); goPage(S.page + 1); return; }
   if (e.key === 'PageUp') { e.preventDefault(); goPage(S.page - 1); return; }
-  const kk = e.key.toLowerCase();
+  const kk = K;
   const furCtx = S.tool === 'fur' || S.tool === 'blk' || (curSel() && (curSel().type === 'fur' || curSel().type === 'blk'));
   if (kk === 'r' && furCtx) { rotateFur(e.shiftKey ? -1 : 1); return; }
   if (kk === 'm') { startCmd(e.shiftKey ? 'copy' : 'move'); return; }
