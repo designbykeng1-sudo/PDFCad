@@ -932,7 +932,7 @@ function ask(title, value = '', multiline = true) {
     $('mCancel').onclick = () => done(null);
     ta.onkeydown = e => {
       if (e.key === 'Escape') { e.preventDefault(); done(null); }
-      if (e.key === 'Enter' && (!multiline || e.ctrlKey || e.metaKey)) { e.preventDefault(); done(ta.value); }
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); done(ta.value); }   // Enter = OK, Shift+Enter = new line
     };
   });
 }
@@ -1723,7 +1723,7 @@ async function finishTemp(chain) {
   if (t.type === 'circle') { const c0 = {x: t.x1, y: t.y1, r: len(t)}; delete t.x1; delete t.y1; delete t.x2; delete t.y2; Object.assign(t, c0); commit(t); redraw(); return; }
   if (t.type === 'arrow') {
     commit(t); redraw();
-    const v = await ask('ข้อความที่ปลายลูกศร (เว้นว่างได้, Ctrl+Enter = ตกลง)', '');
+    const v = await ask('ข้อความที่ปลายลูกศร (เว้นว่างได้ · Enter = ตกลง · Shift+Enter = ขึ้นบรรทัดใหม่)', '');
     if (v) { t.text = v; save(); renderList(); redraw(); }
     return;
   }
@@ -1791,7 +1791,7 @@ $('ov').addEventListener('pointerdown', e => {
       redraw(); return;
     }
     case 'text': {
-      ask('พิมพ์ข้อความ (Ctrl+Enter = ตกลง)').then(t => { if (t && t.trim()) { commit(newAnn('text', {x, y, text: t, size: d.size})); redraw(); } });
+      ask('พิมพ์ข้อความ (Enter = ตกลง · Shift+Enter = ขึ้นบรรทัดใหม่)').then(t => { if (t && t.trim()) { commit(newAnn('text', {x, y, text: t, size: d.size})); redraw(); } });
       return;
     }
   }
