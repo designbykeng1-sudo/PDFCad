@@ -162,7 +162,7 @@ button.tog.on{background:#e7f0ff;border-color:var(--sel);color:var(--sel)}
       <div id="selTools"><button id="stRot" title="หมุน 90° (R)"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button><button id="stMir" title="มิเรอร์ (I)"><svg viewBox="0 0 24 24"><path d="M12 3v18M9 6L3 18h6zM15 6l6 12h-6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></button><button id="stDel" title="ลบ (Delete)" style="color:#c0392b"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div>
     </div></div>
     <div id="gridCtl">
-      <button class="tog" id="bOrtho" title="ล็อกแกน (F8)">ORTHO F8</button><button class="tog" id="bO45" title="สลับมุมล็อก: 90° (แนวนอน/ตั้ง) หรือ 45° (Shift+F8)" style="min-width:38px">90°</button>
+      <button class="tog" id="bOrtho" title="ล็อกแกน (F8): แนวนอน / แนวตั้ง / เฉียง 45° ตามทิศที่ลาก">ORTHO F8</button>
       <button class="tog" id="bSnap" title="จับปลาย/มุม · กึ่งกลาง · จุดตัด · บนเส้น">OSNAP F3</button>
       <button class="tog" id="bGrid" title="แสดงและสแนปกริด">GRID F9</button><select id="pGrid" title="ระยะกริด"><option value="0.01">0.01 ม.</option><option value="0.05">0.05 ม.</option><option value="0.10" selected>0.10 ม.</option><option value="0.25">0.25 ม.</option><option value="0.50">0.50 ม.</option><option value="1">1.00 ม.</option></select>
       <span class="ssep"></span>
@@ -292,7 +292,7 @@ const TOOLS = [
 const S = {
   bytes: null, pdf: null, name: '', size: 0, n: 0, page: 1, zoom: 1, pages: {},
   anns: [], sel: null, sels: [], tool: 'select', clip: null, imgs: {}, nextNo: 1, scales: {}, undo: [], redo: [],
-  ortho: false, ortho45: false, snap: false, cmd: null, grid: false, gridM: 0.10, snapEnd: true, snapPdf: true, osn: {}, hover: null,
+  ortho: false, snap: false, cmd: null, grid: false, gridM: 0.10, snapEnd: true, snapPdf: true, osn: {}, hover: null,
   def: {color: COLORS[0], width: 1.5, size: 10, shape: 'circle', r: 9, symTxt: '', autoInc: false, wallT: 0.10, hatch: true,
         bw: 60, bh: 40, alpha: 0.25, cross: true, boxTxt: 'ลบออก', fur: 'bed_k', furRot: 0, furMir: false,
         furView: 'p', furP: {}, lt: 'cont', lts: 1, blk: 'sec', bRot: 0, bMir: false, bsc: 100, bInc: true, blkAt: {}, eraseMode: 'obj', wipeW: 6},
@@ -459,7 +459,7 @@ function snapPt(x, y, from, skipId) {
   if (S.snap) { const p = osnapFind(x, y, 10 / S.zoom, skipId); if (p) return p; }
   let kind = '';
   let diag = false;
-  if (S.ortho && from && S.ortho45) {   // lock to the nearest 45° direction
+  if (S.ortho && from) {   // ORTHO: lock to the nearest of 0° / 45° / 90° / 135° …
     const dx = x - from[0], dy = y - from[1], L = Math.hypot(dx, dy), t = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * Math.PI / 4;
     const ux = Math.round(Math.cos(t) * 1e9) / 1e9, uy = Math.round(Math.sin(t) * 1e9) / 1e9, d = dx * ux + dy * uy;
     diag = ux !== 0 && uy !== 0; x = from[0] + ux * d; y = from[1] + uy * d;
@@ -476,8 +476,7 @@ function snapPt(x, y, from, skipId) {
   }
   return [x, y, kind];
 }
-function setOrtho(v) { S.ortho = v; $('bOrtho').classList.toggle('on', v); toast(v ? (S.ortho45 ? 'ORTHO เปิด: ล็อกทุก 45° (0° 45° 90° 135°…)' : 'ORTHO เปิด: ล็อกแนวนอน/แนวตั้ง') : 'ORTHO ปิด', 1400); }
-function setOrtho45(v) { S.ortho45 = v; $('bO45').classList.toggle('on', v); $('bO45').textContent = v ? '45°' : '90°'; if (!S.ortho) setOrtho(true); else toast(v ? 'ORTHO ล็อกทุก 45°' : 'ORTHO ล็อกแนวนอน/แนวตั้ง', 1200); }
+function setOrtho(v) { S.ortho = v; $('bOrtho').classList.toggle('on', v); toast(v ? 'ORTHO เปิด: ล็อกแนวนอน / แนวตั้ง / เฉียง 45°' : 'ORTHO ปิด', 1400); }
 function setSnap(v) { S.snap = v; $('bSnap').classList.toggle('on', v); toast(v ? 'OSNAP เปิด: ปลาย/มุม · กึ่งกลาง · จุดตัด · บนเส้น' : 'OSNAP ปิด', 1400); if (v && S.pdf) buildOsnap(S.page); redraw(); }
 function setGrid(v) { S.grid = v; $('bGrid').classList.toggle('on', v); toast(v ? `GRID เปิด: ${S.gridM.toFixed(2)} ม.` : 'GRID ปิด', 1200); redraw(); }
 
@@ -2312,7 +2311,7 @@ $('stage').addEventListener('drop', e => {
 $('bPrev').onclick = () => goPage(S.page - 1); $('bNext').onclick = () => goPage(S.page + 1);
 $('iPage').onchange = e => { e.target.blur(); goPage(+e.target.value || 1); };
 $('bZi').onclick = () => zoomAt(S.zoom * 1.25); $('bZo').onclick = () => zoomAt(S.zoom / 1.25); $('bFit').onclick = zoomExtents;
-$('bOrtho').onclick = () => setOrtho(!S.ortho); $('bO45').onclick = () => setOrtho45(!S.ortho45); $('bSnap').onclick = () => setSnap(!S.snap); $('bGrid').onclick = () => setGrid(!S.grid);
+$('bOrtho').onclick = () => setOrtho(!S.ortho); $('bSnap').onclick = () => setSnap(!S.snap); $('bGrid').onclick = () => setGrid(!S.grid);
 $('bUndo').onclick = undo; $('bRedo').onclick = redo;
 $('sbDim').onclick = () => { if (!S.pdf) return toast('เปิด PDF ก่อน'); setTool('dim'); };
 $('sbCal').onclick = () => { if (!S.pdf) return toast('เปิด PDF ก่อน'); setTool('calib'); };
@@ -2328,7 +2327,7 @@ $('oBy').oninput = save;
 window.addEventListener('keydown', e => {
   if ($('modal').classList.contains('show')) return;
   if (e.key === 'Escape') { e.preventDefault(); cancelAll(); return; }
-  if (e.key === 'F8') { e.preventDefault(); if (e.shiftKey) setOrtho45(!S.ortho45); else setOrtho(!S.ortho); return; }
+  if (e.key === 'F8') { e.preventDefault(); setOrtho(!S.ortho); return; }
   if (e.key === 'F3') { e.preventDefault(); setSnap(!S.snap); return; }
   if (e.key === 'F9') { e.preventDefault(); setGrid(!S.grid); return; }
   const tag = (e.target.tagName || '').toLowerCase();
