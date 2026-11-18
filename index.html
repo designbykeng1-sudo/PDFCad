@@ -1506,7 +1506,7 @@ function zoomExtents() {
 }
 
 // ================================================================ PDF view
-async function openPdf(file) {
+async function openPdf(file, auto) {
   try {
     const buf = await file.arrayBuffer();
     S.bytes = new Uint8Array(buf.slice(0));
@@ -1516,10 +1516,12 @@ async function openPdf(file) {
     for (let i = 1; i <= S.n; i++) { const p = await S.pdf.getPage(i); const v = p.getViewport({scale: 1}); S.pages[i] = {w: v.width, h: v.height, rot: p.rotate}; }
     $('fname').textContent = file.name; $('fname').classList.remove('muted'); $('nPages').textContent = S.n; $('iPage').max = S.n;
     $('drop').style.display = 'none'; $('area').style.display = '';
-    const restored = restore();
+    const restored = await restore();
+    if (!auto) IDB.set('lastPdf', {name: file.name, size: file.size, blob: new Blob([S.bytes], {type: 'application/pdf'}), at: Date.now()});
     S.page = 1; $('iPage').value = 1; scaleInfo(); zoomExtents(); if (S.snap) buildOsnap(1);
     renderList(); syncPanel();
-    toast(restored ? `กู้คืนงานที่ทำค้างไว้ ${S.anns.length} รายการ` : `เปิด ${file.name} (${S.n} หน้า)`);
+    if (auto) { const v = await IDB.get('lastView'); if (v && v.key === key() && v.page > 1 && v.page <= S.n) await goPage(v.page); }
+    toast(auto ? `เปิดงานล่าสุดต่อ: ${file.name}` + (S.anns.length ? ` · ${S.anns.length} รายการ` : '') : restored ? `กู้คืนงานที่ทำค้างไว้ ${S.anns.length} รายการ` : `เปิด ${file.name} (${S.n} หน้า)`, 3000);
   } catch (e) { console.error(e); toast('เปิดไฟล์ไม่ได้: ' + (e.message || e)); }
 }
 async function goPage(n) {
@@ -1531,6 +1533,7 @@ async function goPage(n) {
   scaleInfo();
   if (changed) { S.bgR = null; const bg = $('bg'); bg.width = 1; bg.height = 1; applySize(); $('osnInfo').textContent = ''; if (S.snap) buildOsnap(n); }
   await renderPage(); if ($('fFilter').value === 'page') renderList();
+  if (changed) IDB.set('lastView', {key: key(), page: n});
 }
 async function renderPage() {
   const page = S.page, zoom = S.zoom;
@@ -1970,13 +1973,33 @@ function dupSel(dx = 12, dy = 12) {
   setSel(ids); save(); renderList(); syncPanel(); redraw();
 }
 const key = () => 'mk1:' + S.name + ':' + S.size;
-function save() {
-  clearTimeout(save._t);
-  save._t = setTimeout(() => { try { localStorage.setItem(key(), JSON.stringify(backupObj())); $('status').textContent = 'บันทึกในเครื่องนี้แล้ว ' + new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit'}); } catch (e) { $('status').textContent = 'บันทึกอัตโนมัติไม่ได้ ใช้ปุ่ม "สำรอง .json"'; } }, 400);
+// ---- autosave: markups every change (IndexedDB + localStorage) ; the PDF itself is kept too, so F5 / closing the tab reopens the work
+const IDB = {
+  open() { if (this.p) return this.p; this.p = new Promise(res => { try { const r = indexedDB.open('pdfcad', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => res(null); r.onblocked = () => res(null); } catch (e) { res(null); } }); return this.p; },
+  async get(k) { const db = await this.open(); if (!db) return null; return new Promise(res => { try { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => res(q.result ?? null); q.onerror = () => res(null); } catch (e) { res(null); } }); },
+  async set(k, v) { const db = await this.open(); if (!db) return false; return new Promise(res => { try { const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = () => res(true); t.onerror = () => res(false); } catch (e) { res(false); } }); }
+};
+function saveStamp(ok) { $('status').textContent = ok ? 'บันทึกอัตโนมัติแล้ว ' + new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit', second: '2-digit'}) : 'บันทึกอัตโนมัติไม่ได้ ใช้เมนู งาน ▾ → สำรองงาน'; }
+function saveNow() {
+  if (!S.pdf) return; clearTimeout(save._t); save._t = 0;
+  const o = backupObj(), k = key(); let ok = false;
+  try { localStorage.setItem(k, JSON.stringify(o)); ok = true; } catch (e) { try { localStorage.removeItem(k); } catch (e2) {} }
+  IDB.set(k, o).then(r => saveStamp(ok || r));
+  IDB.set('lastView', {key: k, page: S.page});
+  if (ok) saveStamp(true);
 }
-function restore() {
-  try { const s = localStorage.getItem(key()); if (!s) return false; return loadBackup(JSON.parse(s), true); } catch (e) { return false; }
+function save() { clearTimeout(save._t); save._t = setTimeout(saveNow, 300); }
+async function restore() {
+  let a = null, b = null;
+  try { const t = localStorage.getItem(key()); if (t) a = JSON.parse(t); } catch (e) {}
+  b = await IDB.get(key());
+  const o = a && b ? ((a.saved || '') >= (b.saved || '') ? a : b) : (a || b);
+  if (!o) return false;
+  try { return loadBackup(o, true); } catch (e) { return false; }
 }
+// flush pending changes when the page is hidden / reloaded / closed
+window.addEventListener('pagehide', () => { if (save._t) saveNow(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && save._t) saveNow(); });
 
 // ================================================================ backup data
 function backupObj() {
@@ -2377,6 +2400,7 @@ $('stage').addEventListener('scroll', () => {
 let scrollRender = 0;
 
 placeCredit(); new ResizeObserver(placeCredit).observe($('stage'));
+(async () => { const L = await IDB.get('lastPdf'); if (L && L.blob && !S.pdf) await openPdf(new File([L.blob], L.name, {type: 'application/pdf'}), true); })();
 buildTools(); buildSwatches(); buildFurGrid(); buildBlkGrid(); bindPanel(); syncPanel(); renderList(); scaleInfo();
 </script>
 </body>
