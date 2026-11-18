@@ -22,16 +22,22 @@ button.pri:hover{background:#000}
 button:disabled{opacity:.45;cursor:default}
 button.tog{font-size:12px;font-weight:600;letter-spacing:.3px;color:var(--mut)}
 button.tog.on{background:#e7f0ff;border-color:var(--sel);color:var(--sel)}
-#app{display:grid;grid-template-rows:auto 1fr;grid-template-columns:76px 1fr 300px;height:100vh}
-#top{grid-column:1/4;display:flex;gap:8px;align-items:center;padding:7px 10px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+#app{display:grid;grid-template-rows:auto 1fr;grid-template-columns:118px 1fr 300px;height:100vh}
+#top{grid-column:1/4;display:flex;gap:6px;align-items:center;padding:6px 10px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap;row-gap:4px}
+.pop{display:none;position:absolute;right:0;top:calc(100% + 4px);z-index:70;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.18);padding:4px;flex-direction:column;gap:2px;min-width:170px}
+.pop.show{display:flex}
+.pop button{border:0;text-align:left;width:100%}
 #top .grp{display:flex;gap:4px;align-items:center}
 #top .sep{width:1px;height:24px;background:var(--line);margin:0 4px}
 #fname{font-weight:600;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#tools{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:6px 5px;display:flex;flex-direction:column;gap:3px}
-.tool{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 2px;border-radius:7px;border:1px solid transparent;font-size:11px;line-height:1.1;text-align:center;background:none}
-.tool svg{width:22px;height:22px}
+#tools{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:5px 5px;display:flex;flex-direction:column;gap:1px}
+.tool{display:flex;flex-direction:row;align-items:center;gap:6px;padding:3px 6px;min-height:29px;border-radius:7px;border:1px solid transparent;font-size:12px;line-height:1.1;text-align:left;background:none;width:100%}
+.tool span:nth-of-type(1){flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tool svg{width:19px;height:19px;flex:none}
+.tool.act{color:var(--mut)}
+.tsep{height:1px;background:var(--line);margin:4px 2px}
 .tool.on{background:#1d1d1b;color:#fff}
-.tool .k{font-size:9.5px;opacity:.55}
+.tool .k{font-size:10px;opacity:.5;flex:none}
 #stage{overflow:auto;position:relative;background:#8a8a86}
 #area{display:inline-block;padding:0}
 #pagewrap{position:relative;box-shadow:0 2px 12px rgba(0,0,0,.35);background:#fff}
@@ -75,7 +81,7 @@ button.tog.on{background:#e7f0ff;border-color:var(--sel);color:var(--sel)}
 .modal textarea,.modal input{width:100%;border:1px solid var(--line);border-radius:6px;padding:7px;font-size:15px}
 .modal textarea{min-height:80px}
 .modal .btns{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
-#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#1d1d1b;color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:60;max-width:90vw}
+#toast{position:fixed;bottom:62px;left:50%;transform:translateX(-50%);background:#1d1d1b;color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:60;max-width:90vw}
 #toast.show{opacity:1}
 .shp{width:34px;height:30px;padding:2px;display:flex;align-items:center;justify-content:center}
 .shp svg{width:24px;height:22px}
@@ -83,14 +89,22 @@ button.tog.on{background:#e7f0ff;border-color:var(--sel);color:var(--sel)}
 #selTools{position:absolute;display:none;gap:3px;z-index:5}
 #selTools button{width:26px;height:26px;padding:0;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center}
 #selTools svg{width:16px;height:16px}
-#gridCtl{position:fixed;right:312px;bottom:14px;z-index:40;display:flex;gap:4px;align-items:center;background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:8px;padding:4px 6px;box-shadow:0 1px 6px rgba(0,0,0,.2)}
+#gridCtl{position:fixed;right:312px;bottom:12px;z-index:40;display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:calc(100vw - 450px);background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:8px;padding:4px 6px;box-shadow:0 1px 6px rgba(0,0,0,.2)}
 #gridCtl select{border:1px solid var(--line);border-radius:5px;padding:2px}
+#gridCtl button{padding:3px 7px}
+#gridCtl #pScale{font-weight:700;font-size:13px}
+.ssep{width:1px;height:20px;background:var(--line);margin:0 3px}
+.slbl{font-size:12px;color:var(--mut)}
 #blkGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:6px}
-#hint{position:fixed;left:88px;bottom:14px;z-index:40;background:rgba(29,29,27,.82);color:#fff;font-size:12px;padding:5px 9px;border-radius:6px;pointer-events:none;display:none}
+#hint{position:fixed;left:130px;bottom:56px;z-index:40;background:rgba(29,29,27,.82);color:#fff;font-size:12px;padding:5px 9px;border-radius:6px;pointer-events:none;display:none}
 .chk{display:flex;gap:6px;align-items:center;font-size:12.5px;margin:4px 0}
 @media (max-width:900px){
   #gridCtl{right:12px;bottom:calc(42vh + 12px)}
   #app{grid-template-columns:64px 1fr;grid-template-rows:auto 1fr 42vh}
+  .tool{flex-direction:column;gap:1px;text-align:center;font-size:10.5px}
+  .tool span:nth-of-type(1){white-space:normal}
+  #gridCtl{max-width:calc(100vw - 90px)}
+  #hint{left:76px}
   #side{grid-column:1/3;border-left:0;border-top:1px solid var(--line)}
 }
 </style>
@@ -116,10 +130,6 @@ button.tog.on{background:#e7f0ff;border-color:var(--sel);color:var(--sel)}
       <button id="bZi" title="ขยาย (ล้อเมาส์)">+</button>
       <button id="bFit" title="เต็มจอ (ดับเบิลคลิกเมาส์กลาง)">เต็มจอ</button>
     </div>
-    <div class="grp">
-      <button class="tog" id="bOrtho" title="ล็อกแกนแนวนอน/แนวตั้ง">ORTHO F8</button>
-      <button class="tog" id="bSnap" title="จับมุม/ปลายเส้นของแบบ PDF และ markup">OSNAP F3</button>
-    </div>
     <div class="sep"></div>
     <div class="grp">
       <button id="bUndo" title="ย้อนกลับ (Ctrl+Z)">↶</button>
@@ -127,13 +137,12 @@ button.tog.on{background:#e7f0ff;border-color:var(--sel);color:var(--sel)}
     </div>
     <div class="sep"></div>
     <div class="grp">
-      <button id="bImg" title="แทรกรูปภาพ (หรือวาง Ctrl+V / ลากไฟล์มาวาง)">แทรกรูป</button>
+      <button id="bImg" hidden></button>
       <input type="file" id="fImg" accept="image/*" hidden multiple>
       <button class="pri" id="bExportClean" title="เส้นดำล้วน ใช้งานได้เลย · ไม่มีเลข ไม่มีหน้าเพิ่ม ไม่มีไฟล์แนบ · กรอบลบออก = ลบจริง">PDF เส้นดำ</button>
       <button class="pri" id="bExport" style="background:#c0392b;border-color:#c0392b" title="ทุกสีตามที่วาด + เลขลำดับ + หน้าสรุป + หน้าข้อมูลสำหรับ AI">PDF แจ้งแก้ (สี)</button>
-      <button id="bJson" title="ข้อมูลสำรองสำหรับเปิดแก้ต่อ">สำรอง</button>
-      <button id="bCsv" title="รายการแก้ไขเปิดใน Excel">.csv</button>
-      <button id="bImport" title="เปิดข้อมูลสำรอง .json เพื่อแก้ต่อ">นำเข้า</button>
+      <div id="fileMenu" style="position:relative"><button id="bFileMenu" title="สำรองงาน / นำเข้า / รายการ csv">งาน ▾</button>
+        <div id="fileMenuPop" class="pop"><button id="bJson" title="ข้อมูลสำรองสำหรับเปิดแก้ต่อ">สำรองงาน (.json)</button><button id="bImport" title="เปิดข้อมูลสำรอง .json เพื่อแก้ต่อ">นำเข้างาน (.json)</button><button id="bCsv" title="รายการแก้ไขเปิดใน Excel">รายการแก้ไข (.csv)</button></div></div>
     </div>
     <span id="status"></span>
   </div>
@@ -152,7 +161,15 @@ button.tog.on{background:#e7f0ff;border-color:var(--sel);color:var(--sel)}
       <canvas id="ov"></canvas>
       <div id="selTools"><button id="stRot" title="หมุน 90° (R)"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button><button id="stMir" title="มิเรอร์ (I)"><svg viewBox="0 0 24 24"><path d="M12 3v18M9 6L3 18h6zM15 6l6 12h-6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></button><button id="stDel" title="ลบ (Delete)" style="color:#c0392b"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div>
     </div></div>
-    <div id="gridCtl"><button class="tog" id="bGrid" title="แสดงและสแนปกริด">GRID F9</button><select id="pGrid" title="ระยะกริด"><option value="0.01">0.01 ม.</option><option value="0.05">0.05 ม.</option><option value="0.10" selected>0.10 ม.</option><option value="0.25">0.25 ม.</option><option value="0.50">0.50 ม.</option><option value="1">1.00 ม.</option></select></div>
+    <div id="gridCtl">
+      <button class="tog" id="bOrtho" title="ล็อกแกน (F8)">ORTHO F8</button><button class="tog" id="bO45" title="สลับมุมล็อก: 90° (แนวนอน/ตั้ง) หรือ 45° (Shift+F8)" style="min-width:38px">90°</button>
+      <button class="tog" id="bSnap" title="จับปลาย/มุม · กึ่งกลาง · จุดตัด · บนเส้น">OSNAP F3</button>
+      <button class="tog" id="bGrid" title="แสดงและสแนปกริด">GRID F9</button><select id="pGrid" title="ระยะกริด"><option value="0.01">0.01 ม.</option><option value="0.05">0.05 ม.</option><option value="0.10" selected>0.10 ม.</option><option value="0.25">0.25 ม.</option><option value="0.50">0.50 ม.</option><option value="1">1.00 ม.</option></select>
+      <span class="ssep"></span>
+      <span class="slbl">มาตราส่วน</span><select id="pScale" title="มาตราส่วนของหน้านี้ (ใช้คิดระยะจริง)"><option value="20">1:20</option><option value="25">1:25</option><option value="50">1:50</option><option value="75">1:75</option><option value="100" selected>1:100</option><option value="200">1:200</option><option value="cal">เทียบจากระยะจริง</option></select>
+      <button class="tog" id="sbDim" title="วัดระยะ (D): คลิกจุดเริ่ม → คลิกจุดปลาย">📏 วัดระยะ D</button>
+      <button class="tog" id="sbCal" title="เทียบระยะ (K): ลากบนเส้นที่รู้ระยะจริง แล้วกรอกเมตร">เทียบระยะ K</button>
+    </div>
     <div id="hint"></div>
   </div>
 
@@ -199,8 +216,8 @@ button.tog.on{background:#e7f0ff;border-color:var(--sel);color:var(--sel)}
       <div id="blkGrid"></div>
     </div>
     <div class="sec">
-      <h3>มาตราส่วน และ การจับจุด</h3>
-      <div class="row"><label>หน้านี้</label><select id="pScale"><option value="20">1:20</option><option value="25">1:25</option><option value="50">1:50</option><option value="75">1:75</option><option value="100" selected>1:100</option><option value="200">1:200</option><option value="cal">ปรับจากระยะจริง</option></select></div>
+      <h3>มาตราส่วน และ การจับจุด <span class="muted">(ตั้งที่แถบล่าง)</span></h3>
+      <div class="row" style="display:none"><label>หน้านี้</label><select id="pScaleOld"><option value="20">1:20</option><option value="25">1:25</option><option value="50">1:50</option><option value="75">1:75</option><option value="100" selected>1:100</option><option value="200">1:200</option><option value="cal">ปรับจากระยะจริง</option></select></div>
       <div class="muted" id="scaleInfo"></div>
       <label class="chk"><input type="checkbox" id="pSnapPdf" checked>OSNAP ในแบบ PDF: ปลาย/มุม · กึ่งกลาง · จุดตัด · บนเส้น</label>
       <label class="chk"><input type="checkbox" id="pSnapEnd" checked>OSNAP จับปลายเส้น/มุมของ markup</label>
@@ -244,7 +261,7 @@ const $ = id => document.getElementById(id);
 const FONT = 'Sarabun, Tahoma, sans-serif';
 const PT_PER_MM = 72 / 25.4;
 const COLORS = ['#e02020', '#1f6feb', '#0a8f3c', '#f08c00', '#8e44ad', '#1d1d1b'];
-const TYPE_TH = {pen:'ปากกา', line:'เส้นตรง', arc:'เส้นโค้ง', arrow:'ลูกศรชี้ + ข้อความ', wall:'ผนัง', dim:'วัดระยะ', text:'ข้อความ', sym:'สัญลักษณ์', rect:'กรอบลบออก', cloud:'เมฆแก้ไข', fur:'เฟอร์นิเจอร์', blk:'สัญลักษณ์แบบ', img:'รูปภาพ', wipe:'ลบเส้นในแบบ (ทาขาว)', circle:'วงกลม'};
+const TYPE_TH = {pen:'ปากกา', line:'เส้นตรง', arc:'เส้นโค้ง', arrow:'ลูกศรชี้ + ข้อความ', wall:'ผนัง', dim:'วัดระยะ', text:'ข้อความ', sym:'สัญลักษณ์', rect:'กรอบลบออก', cloud:'เมฆแก้ไข', fur:'เฟอร์นิเจอร์', blk:'สัญลักษณ์แบบ', img:'รูปภาพ', wipe:'ลบเส้นในแบบ (ทาขาว)', circle:'วงกลม', rectl:'สี่เหลี่ยม'};
 const LT = {cont: null, dash: [6, 3], center: [14, 3, 3, 3], phantom: [14, 3, 3, 3, 3, 3], dot: [0.1, 2.6]};
 const LT_TH = {cont: 'ต่อเนื่อง', dash: 'เส้นประ', center: 'ศูนย์กลาง', phantom: 'phantom', dot: 'จุด'};
 const STAT_TH = {open:'รอแก้', done:'แก้แล้ว', ask:'ต้องสอบถาม'};
@@ -263,6 +280,7 @@ const TOOLS = [
   ['text','ข้อความ','T','<path d="M5 5h14M12 5v15" stroke="currentColor" stroke-width="2.2"/>'],
   ['rect','กรอบลบออก','X','<rect x="3" y="6" width="18" height="12" fill="currentColor" opacity=".3" stroke="currentColor" stroke-width="1.6"/><path d="M3 6l18 12M21 6L3 18" stroke="currentColor" stroke-width="1.2"/>'],
   ['erase','ยางลบ','E','<path d="M14.5 4.5l5 5L10 19H5.5l-2-2a1.4 1.4 0 010-2z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 10l5 5M10 19h10" stroke="currentColor" stroke-width="1.6"/>'],
+  ['rectl','สี่เหลี่ยม','R','<rect x="4" y="6" width="16" height="12" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="4" cy="18" r="1.6" fill="currentColor"/><circle cx="20" cy="6" r="1.6" fill="currentColor"/>'],
   ['circle','วงกลม','C','<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><path d="M12 12h8.5" stroke="currentColor" stroke-width="1.1" stroke-dasharray="1.6 1.4"/>'],
   ['cloud','เมฆแก้ไข','Q','<path d="M5 9a2.5 2.5 0 014-2 2.5 2.5 0 014 0 2.5 2.5 0 014 0 2.5 2.5 0 012 4 2.5 2.5 0 01-2 4 2.5 2.5 0 01-4 0 2.5 2.5 0 01-4 0 2.5 2.5 0 01-4-2 2.5 2.5 0 010-4z" fill="none" stroke="currentColor" stroke-width="1.5"/>'],
   ['fur','เฟอร์นิเจอร์','F','<rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="5" y="7" width="6" height="4" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="13" y="7" width="6" height="4" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M3 13h18" stroke="currentColor" stroke-width="1.2"/>'],
@@ -274,7 +292,7 @@ const TOOLS = [
 const S = {
   bytes: null, pdf: null, name: '', size: 0, n: 0, page: 1, zoom: 1, pages: {},
   anns: [], sel: null, sels: [], tool: 'select', clip: null, imgs: {}, nextNo: 1, scales: {}, undo: [], redo: [],
-  ortho: false, snap: false, cmd: null, grid: false, gridM: 0.10, snapEnd: true, snapPdf: true, osn: {}, hover: null,
+  ortho: false, ortho45: false, snap: false, cmd: null, grid: false, gridM: 0.10, snapEnd: true, snapPdf: true, osn: {}, hover: null,
   def: {color: COLORS[0], width: 1.5, size: 10, shape: 'circle', r: 9, symTxt: '', autoInc: false, wallT: 0.10, hatch: true,
         bw: 60, bh: 40, alpha: 0.25, cross: true, boxTxt: 'ลบออก', fur: 'bed_k', furRot: 0, furMir: false,
         furView: 'p', furP: {}, lt: 'cont', lts: 1, blk: 'sec', bRot: 0, bMir: false, bsc: 100, bInc: true, blkAt: {}, eraseMode: 'obj', wipeW: 6},
@@ -313,7 +331,7 @@ function keyPts(a) {
   switch (a.type) {
     case 'line': case 'arrow': case 'dim': case 'wall': return [[a.x1, a.y1], [a.x2, a.y2]];
     case 'arc': return [[a.x1, a.y1], [a.x2, a.y2], arcApex(a)];
-    case 'rect': case 'cloud': case 'img': { const b = bbox(a); return [[b[0], b[1]], [b[2], b[1]], [b[0], b[3]], [b[2], b[3]]]; }
+    case 'rect': case 'cloud': case 'img': case 'rectl': { const b = bbox(a); return [[b[0], b[1]], [b[2], b[1]], [b[0], b[3]], [b[2], b[3]]]; }
     case 'circle': return [[a.x, a.y], [a.x + a.r, a.y], [a.x - a.r, a.y], [a.x, a.y + a.r], [a.x, a.y - a.r]];
     case 'sym': case 'fur': case 'blk': return [[a.x, a.y]];
     case 'text': return [[a.x, a.y]];
@@ -387,7 +405,7 @@ function annSegs(a) {
   switch (a.type) {
     case 'line': case 'dim': case 'arrow': L([a.x1, a.y1], [a.x2, a.y2]); break;
     case 'wall': { const l = len(a); if (l < 0.1) break; const nx = -(a.y2 - a.y1) / l * a.t / 2, ny = (a.x2 - a.x1) / l * a.t / 2; L([a.x1 + nx, a.y1 + ny], [a.x2 + nx, a.y2 + ny]); L([a.x1 - nx, a.y1 - ny], [a.x2 - nx, a.y2 - ny]); L([a.x1, a.y1], [a.x2, a.y2]); break; }
-    case 'rect': case 'cloud': case 'img': { const b = bbox(a); const P = [[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]]]; for (let i = 0; i < 4; i++) L(P[i], P[(i + 1) % 4]); break; }
+    case 'rect': case 'cloud': case 'img': case 'rectl': { const b = bbox(a); const P = [[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]]]; for (let i = 0; i < 4; i++) L(P[i], P[(i + 1) % 4]); break; }
     case 'arc': { const P = arcSamples(a, 24); for (let i = 1; i < P.length; i++) L(P[i - 1], P[i]); break; }
     case 'pen': for (let i = 1; i < a.pts.length; i++) L(a.pts[i - 1], a.pts[i]); break;
     case 'circle': { let q = [a.x + a.r, a.y]; for (let i = 1; i <= 64; i++) { const t = i * Math.PI / 32, n = [a.x + a.r * Math.cos(t), a.y + a.r * Math.sin(t)]; L(q, n); q = n; } break; }
@@ -440,8 +458,15 @@ function osnapFind(x, y, tol, skip) {
 function snapPt(x, y, from, skipId) {
   if (S.snap) { const p = osnapFind(x, y, 10 / S.zoom, skipId); if (p) return p; }
   let kind = '';
-  if (S.ortho && from) { if (Math.abs(x - from[0]) >= Math.abs(y - from[1])) y = from[1]; else x = from[0]; }
-  if (S.grid) {
+  let diag = false;
+  if (S.ortho && from && S.ortho45) {   // lock to the nearest 45° direction
+    const dx = x - from[0], dy = y - from[1], L = Math.hypot(dx, dy), t = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * Math.PI / 4;
+    const ux = Math.round(Math.cos(t) * 1e9) / 1e9, uy = Math.round(Math.sin(t) * 1e9) / 1e9, d = dx * ux + dy * uy;
+    diag = ux !== 0 && uy !== 0; x = from[0] + ux * d; y = from[1] + uy * d;
+    if (!diag) { if (uy === 0) y = from[1]; else x = from[0]; }
+    if (diag && S.grid) { const g = gridPt(); if (g > 0.05) { const st = g * Math.SQRT2, dd = Math.round(d / st) * st; x = from[0] + ux * dd; y = from[1] + uy * dd; kind = 'grid'; } }
+  } else if (S.ortho && from) { if (Math.abs(x - from[0]) >= Math.abs(y - from[1])) y = from[1]; else x = from[0]; }
+  if (S.grid && !diag) {
     const g = gridPt();
     if (g > 0.05) {
       if (S.ortho && from) { if (y === from[1]) x = Math.round(x / g) * g; else y = Math.round(y / g) * g; }
@@ -451,7 +476,8 @@ function snapPt(x, y, from, skipId) {
   }
   return [x, y, kind];
 }
-function setOrtho(v) { S.ortho = v; $('bOrtho').classList.toggle('on', v); toast(v ? 'ORTHO เปิด: ล็อกแนวนอน/แนวตั้ง' : 'ORTHO ปิด', 1200); }
+function setOrtho(v) { S.ortho = v; $('bOrtho').classList.toggle('on', v); toast(v ? (S.ortho45 ? 'ORTHO เปิด: ล็อกทุก 45° (0° 45° 90° 135°…)' : 'ORTHO เปิด: ล็อกแนวนอน/แนวตั้ง') : 'ORTHO ปิด', 1400); }
+function setOrtho45(v) { S.ortho45 = v; $('bO45').classList.toggle('on', v); $('bO45').textContent = v ? '45°' : '90°'; if (!S.ortho) setOrtho(true); else toast(v ? 'ORTHO ล็อกทุก 45°' : 'ORTHO ล็อกแนวนอน/แนวตั้ง', 1200); }
 function setSnap(v) { S.snap = v; $('bSnap').classList.toggle('on', v); toast(v ? 'OSNAP เปิด: ปลาย/มุม · กึ่งกลาง · จุดตัด · บนเส้น' : 'OSNAP ปิด', 1400); if (v && S.pdf) buildOsnap(S.page); redraw(); }
 function setGrid(v) { S.grid = v; $('bGrid').classList.toggle('on', v); toast(v ? `GRID เปิด: ${S.gridM.toFixed(2)} ม.` : 'GRID ปิด', 1200); redraw(); }
 
@@ -920,6 +946,11 @@ function buildTools() {
     b.innerHTML = `<svg viewBox="0 0 24 24">${svg}</svg><span>${lb}</span><span class="k">${k}</span>`;
     b.onclick = () => setTool(id); t.appendChild(b);
   }
+  const sp = document.createElement('div'); sp.className = 'tsep'; t.appendChild(sp);
+  const im = document.createElement('button'); im.className = 'tool act'; im.title = 'แทรกรูปภาพ (หรือวาง Ctrl+V / ลากไฟล์มาวาง)';
+  im.innerHTML = '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="10" r="1.8" fill="currentColor"/><path d="M4 18l6-6 4 4 3-3 4 4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>แทรกรูป</span><span class="k"></span>';
+  im.onclick = () => $('bImg').click(); t.appendChild(im);
+  if ($('sbDim')) { $('sbDim').classList.toggle('on', S.tool === 'dim'); $('sbCal').classList.toggle('on', S.tool === 'calib'); }
 }
 const HINTS = {
   arc: 'เส้นโค้ง: คลิกจุดเริ่ม → คลิกจุดปลาย → ขยับเมาส์ปรับความโค้ง แล้วคลิกจบ (Esc ยกเลิก)',
@@ -930,6 +961,7 @@ const HINTS = {
   dim: 'วัดระยะ: คลิกจุดเริ่ม → คลิกจุดปลาย',
   arrow: 'ลูกศร: คลิกที่ปลายลูกศร → คลิกตำแหน่งข้อความ',
   cloud: 'เมฆแก้ไข (Q): คลิกมุมหนึ่ง → คลิกมุมตรงข้าม',
+  rectl: 'สี่เหลี่ยม (R): คลิกมุมหนึ่ง → คลิกมุมตรงข้าม (F3 จับจุด) · Esc ยกเลิก',
   circle: 'วงกลม (C): คลิกจุดศูนย์กลาง → คลิกระยะรัศมี (F3 จับจุด · ลากค้างก็ได้) · Esc ยกเลิก',
   erase: 'ยางลบ: ลากผ่าน markup เพื่อลบ (เส้นปากกาถูกตัดเฉพาะส่วน) · โหมดทาขาว = ลบเส้นในแบบ PDF · Ctrl+Z ย้อน',
   blk: 'บล็อกแบบ: คลิกวาง · R หมุน 90° · I มิเรอร์ · แก้ข้อความได้ที่แผงขวา',
@@ -943,7 +975,7 @@ function setTool(id) {
 }
 const ROWS = ['rErase', 'rWipe', 'rCmd', 'rFurP', 'rWidth', 'rLt', 'rLts', 'rSize', 'rShape', 'rR', 'rSymTxt', 'rWall', 'rBox', 'rBox2', 'rBoxTxt', 'rFur', 'rBlk', 'rText', 'rNote', 'rStat', 'rDel'];
 const SHOW = {
-  circle: ['rWidth', 'rLt', 'rLts'], pen: ['rWidth', 'rLt', 'rLts'], line: ['rWidth', 'rLt', 'rLts'], arc: ['rWidth', 'rLt', 'rLts'], blk: ['rWidth', 'rBlk'], arrow: ['rWidth', 'rSize'], wall: ['rWidth', 'rWall'], dim: ['rWidth', 'rSize'],
+  rectl: ['rWidth', 'rLt', 'rLts'], circle: ['rWidth', 'rLt', 'rLts'], pen: ['rWidth', 'rLt', 'rLts'], line: ['rWidth', 'rLt', 'rLts'], arc: ['rWidth', 'rLt', 'rLts'], blk: ['rWidth', 'rBlk'], arrow: ['rWidth', 'rSize'], wall: ['rWidth', 'rWall'], dim: ['rWidth', 'rSize'],
   text: ['rSize'], sym: ['rWidth', 'rShape', 'rR', 'rSymTxt'], rect: ['rWidth', 'rBox', 'rBox2', 'rBoxTxt'], cloud: ['rWidth'],
   fur: ['rWidth', 'rFur'], select: [], hand: [], calib: [], erase: ['rErase', 'rWipe'], wipe: [],
 };
@@ -1152,6 +1184,7 @@ function describe(a) {
   if (a.type === 'blk') { const B = BLK[a.key]; return B ? B.n + (Object.values(a.at || {}).length ? ' ' + Object.values(a.at).join(' / ') : '') : a.key; }
   if ((a.type === 'line' || a.type === 'arc' || a.type === 'pen') && a.lt && a.lt !== 'cont') return LT_TH[a.lt] + (a.lts && a.lts !== 1 ? ` x${a.lts}` : '');
   if (a.type === 'rect') return a.text || '';
+  if (a.type === 'rectl') { const k = ptsPerM(a.page); return `${(a.w / k).toFixed(2)} x ${(a.h / k).toFixed(2)} ม.` + (a.lt && a.lt !== 'cont' ? ' · ' + LT_TH[a.lt] : ''); }
   if (a.type === 'circle') return `R ${(a.r / ptsPerM(a.page)).toFixed(2)} ม. · Ø ${(2 * a.r / ptsPerM(a.page)).toFixed(2)} ม.` + (a.lt && a.lt !== 'cont' ? ' · ' + LT_TH[a.lt] : '');
   if (a.type === 'wipe') return `กว้าง ${(a.w / PT_PER_MM).toFixed(1)} มม. บนกระดาษ`;
   if (a.type === 'img') { const k = ptsPerM(a.page); return `${(a.w / k).toFixed(2)}x${(a.h / k).toFixed(2)} ม. (ตามมาตราส่วน)`; }
@@ -1208,7 +1241,7 @@ function bbox(a) {
     }
     case 'text': { const ls = textLines(a.text); const w = Math.max(...ls.map(l => measure(l, a.size, true))); return [a.x, a.y, a.x + w, a.y + ls.length * a.size * 1.3]; }
     case 'sym': { const ex = a.shape === 'ellipse' ? 1.45 : 1, ey = a.shape === 'ellipse' ? 0.85 : 1; return [a.x - a.r * ex, a.y - a.r * ey, a.x + a.r * ex, a.y + a.r * ey]; }
-    case 'rect': case 'cloud': case 'img': return [Math.min(a.x, a.x + a.w), Math.min(a.y, a.y + a.h), Math.max(a.x, a.x + a.w), Math.max(a.y, a.y + a.h)];
+    case 'rect': case 'cloud': case 'img': case 'rectl': return [Math.min(a.x, a.x + a.w), Math.min(a.y, a.y + a.h), Math.max(a.x, a.x + a.w), Math.max(a.y, a.y + a.h)];
   }
   return [0, 0, 0, 0];
 }
@@ -1223,6 +1256,7 @@ function hit(a, x, y, tol) {
   switch (a.type) {
     case 'pen': return hitPoly(a.pts, x, y, tol + a.width);
     case 'circle': return Math.abs(Math.hypot(x - a.x, y - a.y) - a.r) < tol + a.width;
+    case 'rectl': { const b = bbox(a); return hitPoly([[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]], [b[0], b[1]]], x, y, tol + a.width); }
     case 'wipe': return a.pts.length === 1 ? Math.hypot(x - a.pts[0][0], y - a.pts[0][1]) < tol + a.w / 2 : hitPoly(a.pts, x, y, tol + a.w / 2);
     case 'arc': return hitPoly(arcSamples(a), x, y, tol + a.width);
     case 'line': case 'dim': return distSeg(x, y, a.x1, a.y1, a.x2, a.y2) < tol + a.width;
@@ -1240,7 +1274,7 @@ function handles(a) {
     case 'arc': { const [mx, my] = arcApex(a); return [['p1', a.x1, a.y1], ['p2', a.x2, a.y2], ['mid', mx, my]]; }
     case 'sym': return [['r', a.x + a.r * (a.shape === 'ellipse' ? 1.45 : 1), a.y]];
     case 'circle': return [['cr', a.x + a.r, a.y]];
-    case 'rect': case 'cloud': case 'img': { const b = bbox(a); return [['nw', b[0], b[1]], ['ne', b[2], b[1]], ['sw', b[0], b[3]], ['se', b[2], b[3]]]; }
+    case 'rect': case 'cloud': case 'img': case 'rectl': { const b = bbox(a); return [['nw', b[0], b[1]], ['ne', b[2], b[1]], ['sw', b[0], b[3]], ['se', b[2], b[3]]]; }
     case 'text': return [['ts', bbox(a)[2], bbox(a)[3]]];
   }
   return [];
@@ -1284,7 +1318,7 @@ function drawAnn(c, a, opts = {}) {
   if (opts.mono && a.type !== 'wipe') a = Object.assign({}, a, {color: '#000000'});
   c.save();
   c.strokeStyle = a.color; c.fillStyle = a.color; c.lineWidth = a.width; c.lineCap = 'round'; c.lineJoin = 'round';
-  if ((a.type === 'line' || a.type === 'arc' || a.type === 'pen' || a.type === 'circle') && a.lt && LT[a.lt]) { const f = (a.lts || 1) * Math.max(1, a.width / 1.5); c.setLineDash(LT[a.lt].map(v => v * f)); if (a.lt !== 'dot') c.lineCap = 'butt'; }
+  if (['line', 'arc', 'pen', 'circle', 'rectl'].includes(a.type) && a.lt && LT[a.lt]) { const f = (a.lts || 1) * Math.max(1, a.width / 1.5); c.setLineDash(LT[a.lt].map(v => v * f)); if (a.lt !== 'dot') c.lineCap = 'butt'; }
   switch (a.type) {
     case 'pen': {
       const p = a.pts; if (p.length < 2) break;
@@ -1299,6 +1333,7 @@ function drawAnn(c, a, opts = {}) {
       c.strokeStyle = '#ffffff'; c.lineWidth = a.w; path(); c.stroke(); break;
     }
     case 'line': c.beginPath(); c.moveTo(a.x1, a.y1); c.lineTo(a.x2, a.y2); c.stroke(); break;
+    case 'rectl': { const [x0, y0, x1, y1] = bbox(a); c.strokeRect(x0, y0, x1 - x0, y1 - y0); break; }
     case 'circle': { const t = 'x1' in a, cx = t ? a.x1 : a.x, cy = t ? a.y1 : a.y, r = t ? len(a) : a.r; c.beginPath(); c.arc(cx, cy, Math.max(r, 0.01), 0, Math.PI * 2); c.stroke(); break; }
     case 'arc': {
       const g = arcGeom(a); c.beginPath();
@@ -1531,6 +1566,7 @@ function redraw() {
   for (const a of S.anns) if (a.page === S.page) drawAnn(c, a, dop);
   if (temp) {
     if (temp.calib) { c.save(); c.strokeStyle = '#0a8f3c'; c.setLineDash([4, 3]); c.lineWidth = 1.2; c.beginPath(); c.moveTo(temp.x1, temp.y1); c.lineTo(temp.x2, temp.y2); c.stroke(); c.restore(); }
+    else if (temp.box && temp.kind === 'rectl') { const b = temp.box, k = 1 / S.zoom, pm = ptsPerM(S.page); c.save(); c.strokeStyle = S.def.color; c.lineWidth = S.def.width; c.strokeRect(b[0], b[1], b[2] - b[0], b[3] - b[1]); tagText(c, `${((b[2] - b[0]) / pm).toFixed(2)} x ${((b[3] - b[1]) / pm).toFixed(2)} ม.`, b[2] + 6 * k, b[3] + 10 * k, k); c.restore(); }
     else if (temp.box) { c.save(); c.strokeStyle = '#1f6feb'; c.setLineDash([3, 3]); c.lineWidth = 0.8 / S.zoom; const b = temp.box; c.strokeRect(b[0], b[1], b[2] - b[0], b[3] - b[1]); c.restore(); }
     else {
       drawAnn(c, temp);
@@ -1647,7 +1683,7 @@ $('stage').addEventListener('wheel', e => {
   zoomAt(S.zoom * Math.exp(-dy * (e.ctrlKey ? 0.01 : 0.0018)), e.clientX, e.clientY);
 }, {passive: false});
 
-const CLICK2 = ['line', 'wall', 'dim', 'arrow', 'calib', 'cloud', 'circle'];
+const CLICK2 = ['line', 'wall', 'dim', 'arrow', 'calib', 'cloud', 'circle', 'rectl'];
 function startTemp(x, y) {
   const d = S.def;
   switch (S.tool) {
@@ -1658,6 +1694,7 @@ function startTemp(x, y) {
     case 'wall': return newAnn('wall', {x1: x, y1: y, x2: x, y2: y, tm: d.wallT, t: d.wallT * ptsPerM(S.page), hatch: d.hatch});
     case 'calib': return {calib: true, x1: x, y1: y, x2: x, y2: y};
     case 'cloud': return {box: [x, y, x, y], sx: x, sy: y};
+    case 'rectl': return {box: [x, y, x, y], sx: x, sy: y, kind: 'rectl'};
   }
 }
 function updTemp(x, y, shift) {
@@ -1673,6 +1710,7 @@ async function finishTemp(chain) {
   if (t.box) {
     const [x0, y0, x1, y1] = t.box;
     if (x1 - x0 < 2 / S.zoom || y1 - y0 < 2 / S.zoom) { redraw(); return; }
+    if (t.kind === 'rectl') { commit(newAnn('rectl', {x: x0, y: y0, w: x1 - x0, h: y1 - y0, lt: S.def.lt, lts: S.def.lts})); redraw(); return; }
     commit(newAnn('cloud', {x: x0, y: y0, w: x1 - x0, h: y1 - y0})); redraw(); return;
   }
   if (t.calib) {
@@ -2004,12 +2042,13 @@ function aiLines() {
   out.push(`MARKUP/2 file=${S.name} pages=${S.n} items=${items.length} date=${new Date().toISOString().slice(0, 10)}${$('oBy').value ? ' by=' + $('oBy').value : ''}`);
   out.push('units: geom in paper mm from page top-left as viewed; m = real metres at page scale; st o=open d=done q=ask');
   out.push('FUR view p=plan(centre) f/s=front/side elevation (insert = bottom centre on floor/sill); doors/windows: plan insert = wall centreline mid-opening');
-  out.push('types: LN line a b | CIR centre R | PL polyline pts | ARC a b sag(mm, +left of a->b) | ARW tip tail +text | WALL centreline a b t,L | DIM a b L | TXT xy | SYM xy shape | DEL box x,y,w,h (remove) | CLD box (revise area) | FUR centre key WxD rot mir | IMG box (picture) | WIPE pts w (white-out: erase original lines under the stroke) | BLK insert key rot mir attrs k=v; | lt=linetype*scale');
+  out.push('types: LN line a b | CIR centre R | REC box x,y,w,h (outline) | PL polyline pts | ARC a b sag(mm, +left of a->b) | ARW tip tail +text | WALL centreline a b t,L | DIM a b L | TXT xy | SYM xy shape | DEL box x,y,w,h (remove) | CLD box (revise area) | FUR centre key WxD rot mir | IMG box (picture) | WIPE pts w (white-out: erase original lines under the stroke) | BLK insert key rot mir attrs k=v; | lt=linetype*scale');
   out.push('pages: ' + pagesUsed.map(p => `p${p}=${paperName(S.pages[p].w, S.pages[p].h)} ${scaleTxt(p)}`).join(' ; '));
   out.push('id|pg|type|geom|extra|text|note|st');
   for (const a of items) {
     const k = ptsPerM(a.page); let T = '', g = '', ex = '', tx = a.text || '';
     switch (a.type) {
+      case 'rectl': { T = 'REC'; const b = bbox(a); g = [b[0], b[1], b[2] - b[0], b[3] - b[1]].map(mm).join(','); ex = m2((b[2] - b[0]) / k) + 'x' + m2((b[3] - b[1]) / k) + 'm' + ltx(a); break; }
       case 'circle': T = 'CIR'; g = P2(a.x, a.y); ex = 'R=' + m2(a.r / k) + ltx(a); break;
       case 'line': T = 'LN'; g = P2(a.x1, a.y1) + ' ' + P2(a.x2, a.y2); ex = 'L=' + m2(len(a) / k) + ltx(a); break;
       case 'pen': T = 'PL'; g = rdp(a.pts, 0.5 * PT_PER_MM).map(p => P2(...p)).join(' '); ex = ltx(a).trim(); break;
@@ -2273,8 +2312,13 @@ $('stage').addEventListener('drop', e => {
 $('bPrev').onclick = () => goPage(S.page - 1); $('bNext').onclick = () => goPage(S.page + 1);
 $('iPage').onchange = e => { e.target.blur(); goPage(+e.target.value || 1); };
 $('bZi').onclick = () => zoomAt(S.zoom * 1.25); $('bZo').onclick = () => zoomAt(S.zoom / 1.25); $('bFit').onclick = zoomExtents;
-$('bOrtho').onclick = () => setOrtho(!S.ortho); $('bSnap').onclick = () => setSnap(!S.snap); $('bGrid').onclick = () => setGrid(!S.grid);
+$('bOrtho').onclick = () => setOrtho(!S.ortho); $('bO45').onclick = () => setOrtho45(!S.ortho45); $('bSnap').onclick = () => setSnap(!S.snap); $('bGrid').onclick = () => setGrid(!S.grid);
 $('bUndo').onclick = undo; $('bRedo').onclick = redo;
+$('sbDim').onclick = () => { if (!S.pdf) return toast('เปิด PDF ก่อน'); setTool('dim'); };
+$('sbCal').onclick = () => { if (!S.pdf) return toast('เปิด PDF ก่อน'); setTool('calib'); };
+$('bFileMenu').onclick = e => { e.stopPropagation(); $('fileMenuPop').classList.toggle('show'); };
+document.addEventListener('pointerdown', e => { if (!e.target.closest('#fileMenu')) $('fileMenuPop').classList.remove('show'); });
+$('fileMenuPop').addEventListener('click', () => setTimeout(() => $('fileMenuPop').classList.remove('show'), 0));
 $('bExport').onclick = $('bExport2').onclick = () => exportPdf('markup');
 $('bExportClean').onclick = $('bExportClean2').onclick = () => exportPdf('clean');
 $('bJson').onclick = () => { if (!S.pdf) return toast('ยังไม่ได้เปิด PDF'); saveFile(baseName() + '_markup_backup.json', JSON.stringify(backupObj(), null, 1), 'application/json'); };
@@ -2284,7 +2328,7 @@ $('oBy').oninput = save;
 window.addEventListener('keydown', e => {
   if ($('modal').classList.contains('show')) return;
   if (e.key === 'Escape') { e.preventDefault(); cancelAll(); return; }
-  if (e.key === 'F8') { e.preventDefault(); setOrtho(!S.ortho); return; }
+  if (e.key === 'F8') { e.preventDefault(); if (e.shiftKey) setOrtho45(!S.ortho45); else setOrtho(!S.ortho); return; }
   if (e.key === 'F3') { e.preventDefault(); setSnap(!S.snap); return; }
   if (e.key === 'F9') { e.preventDefault(); setGrid(!S.grid); return; }
   const tag = (e.target.tagName || '').toLowerCase();
