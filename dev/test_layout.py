@@ -109,6 +109,13 @@ async def main():
         await pg.screenshot(path=os.path.join(OUT, 'layout_2_skp.png'))
         await pg.set_input_files('#fSkp', files); await pg.wait_for_timeout(2500)
         check('re-import updates in place (no new pages)', await ev('S.n') == 5)
+        # furniture sheet: 4 views (3 at 1:20 + perspective) on ONE page, 2x2
+        await pg.set_input_files('#fSkp', [os.path.join(A, f) for f in ('f01_dbklayout.json', 'f01_front.png', 'f01_side.png', 'f01_top.png', 'f01_persp.png')]); await pg.wait_for_timeout(2500)
+        fs = await ev("(()=>{const v=S.anns.filter(a=>a.type==='vp'&&a.page===S.n); return {n:S.n, name:pageName(S.n), den:denOf(S.n), k:v.length, w:v.map(a=>+(a.w/PT_PER_MM).toFixed(1)), persp:v.filter(a=>a.persp).length, cells:v.map(a=>[Math.round(a.x),Math.round(a.y)])}})()")
+        check('furniture sheet = 1 page with 4 views', fs['n'] == 6 and fs['k'] == 4 and fs['persp'] == 1 and fs['name'] == 'แบบเฟอร์นิเจอร์ F01 ตู้เสื้อผ้า' and fs['den'] == 20, fs)
+        check('front view 1.2 m @1:20 = 60 mm', abs(fs['w'][0] - 60) < 2, fs['w'])
+        await ev("goPage(S.n)"); await pg.wait_for_timeout(800)
+        await pg.screenshot(path=os.path.join(OUT, 'layout_2b_furniture.png'))
 
         # --- Claude bridge
         await pg.click('#bDocMenu'); await pg.click('#mAiCopy'); await pg.wait_for_timeout(300)

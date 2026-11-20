@@ -2105,7 +2105,7 @@ function backupObj() {
 function loadBackup(o, silent) {
   if (!o || !Array.isArray(o.items)) { if (!silent) toast('ไฟล์ข้อมูลสำรองไม่ถูกต้อง'); return false; }
   if (o.file && o.file.pages && o.file.pages !== S.n && !silent) toast(`คำเตือน: ข้อมูลสำรองมี ${o.file.pages} หน้า แต่ PDF นี้มี ${S.n} หน้า`, 4000);
-  const keep = ['id', 'no', 'page', 'type', 'color', 'width', 'status', 'note', 'created', 'pts', 'x1', 'y1', 'x2', 'y2', 's', 'size', 'text', 'tm', 't', 'hatch', 'x', 'y', 'r', 'shape', 'w', 'h', 'alpha', 'cross', 'key', 'rot', 'mir', 'lt', 'lts', 'sc', 'at', 'view', 'p', 'src', 'layer', 'mid', 'den', 'cx', 'cy', 'frame', 'name'];
+  const keep = ['id', 'no', 'page', 'type', 'color', 'width', 'status', 'note', 'created', 'pts', 'x1', 'y1', 'x2', 'y2', 's', 'size', 'text', 'tm', 't', 'hatch', 'x', 'y', 'r', 'shape', 'w', 'h', 'alpha', 'cross', 'key', 'rot', 'mir', 'lt', 'lts', 'sc', 'at', 'view', 'p', 'src', 'layer', 'mid', 'den', 'cx', 'cy', 'frame', 'name', 'persp'];
   S.anns = o.items.filter(a => a.page >= 0 && a.page <= S.n && TYPE_TH[a.type] && (a.type !== 'fur' || FUR[a.key]) && (a.type !== 'blk' || BLK[a.key])).map(a => Object.fromEntries(Object.entries(a).filter(([k]) => keep.includes(k))));
   S.scales = {}; for (const [k, v] of Object.entries(o.pages || {})) if (v.scale) S.scales[k] = v.scale;
   if (o.doc) { S.pnames = o.doc.pnames || {}; if (o.doc.layers && o.doc.layers.length) S.layers = o.doc.layers; S.curLayer = o.doc.curLayer || S.layers[0].id; }
@@ -2492,7 +2492,7 @@ async function restructure(order, cur) {
   S.anns = res; S.scales = scales; S.pnames = names; S.undo = []; S.redo = []; setSel([]);
   await loadBytes(bytes, S.name, false);
   saveDocBlob(); save(); renderList(); renderPages();
-  S.page = 0; await goPage(Math.max(1, Math.min(S.n, cur || 1))); zoomExtents();
+  S.page = 0; await goPage(Math.max(1, Math.min(S.n, cur || 1))); zoomExtents(); syncPanel();
 }
 function pageOrder() { return Array.from({length: S.n}, (_, i) => ({src: i + 1})); }
 function newPageEntry(extra) { return Object.assign(S.tpl ? {tpl: true} : {}, extra || {}); }
@@ -2598,7 +2598,7 @@ function drawVp(c, a, opts) {
     c.strokeRect(a.x, a.y, a.w, a.h); c.restore();
   }
 }
-function vpDesc(a) { const M = S.media[a.mid]; return `${a.name || 'viewport'} · ${denTxt(a.den)} · ${M ? (M.type === 'img' ? 'โมเดล SketchUp' : 'DXF เวกเตอร์') : 'ไม่มีข้อมูล'}`; }
+function vpDesc(a) { const M = S.media[a.mid]; return `${a.name || 'viewport'} · ${a.persp ? 'ทัศนียภาพ' : denTxt(a.den)} · ${M ? (M.type === 'img' ? 'โมเดล SketchUp' : 'DXF เวกเตอร์') : 'ไม่มีข้อมูล'}`; }
 function syncVp(a) {
   const sel = $('pVpDen');
   if (!sel.options.length) sel.innerHTML = VP_DENS.map(d => `<option value="${d}">${esc(denTxt(d))}</option>`).join('');
@@ -2635,7 +2635,14 @@ function placeVpOrigin(a, p) {
   const M = S.media[a.mid], b = M.b, f = vpF(a), ox = 0, oy = S.pages[p].h;
   a.x = ox + b[0] * f; a.y = oy + b[1] * f; a.w = (b[2] - b[0]) * f; a.h = (b[3] - b[1]) * f; a.cx = (b[0] + b[2]) / 2; a.cy = (b[1] + b[3]) / 2;
 }
-// put a list of {name, den, m} each on its own page (re-using an empty first page)
+// 2x2 cells of a sheet: 0 front | 1 side / 2 plan | 3 perspective
+function cellOf(area, slot) {
+  const gap = 6 * PT_PER_MM, cw = (area.w - gap) / 2, ch = (area.h - gap) / 2;
+  return {x: area.x + (slot % 2) * (cw + gap), y: area.y + Math.floor(slot / 2) * (ch + gap), w: cw, h: ch};
+}
+// perspectives have no scale: size the picture to fill its cell
+function fitPersp(a, area) { const M = S.media[a.mid]; M.ppm = (1000 / a.den * PT_PER_MM) / Math.min(area.w / M.wpx, area.h / M.hpx); }
+// put a list of {name, den, m} (or a sheet {name, den, items:[{name, m, slot, persp}]}) each on its own page (re-using an empty first page)
 async function addMediaPages(list) {
   const order = pageOrder();
   const reuse = S.n === 1 && !S.anns.some(a => a.page === 1) && (!S.pnames[1] || S.pnames[1] === 'หน้า 1');
@@ -2643,10 +2650,15 @@ async function addMediaPages(list) {
   const start = reuse ? 1 : S.n + 1;
   await restructure(order, start);
   list.forEach((it, i) => {
-    const p = start + i, id = 'm' + uid(); S.media[id] = it.m;
-    const a = newVp(p, id, it.den, it.name);
-    if (it.m.type === 'dxf' && it.den === 1) placeVpOrigin(a, p); else placeVp(a, drawArea(p));
-    a.no = S.nextNo++; S.anns.push(a);
+    const p = start + i;
+    for (const q of it.items || [it]) {
+      const id = 'm' + uid(); S.media[id] = q.m;
+      const a = newVp(p, id, it.den, q.name);
+      const area = it.items ? cellOf(drawArea(p), q.slot || 0) : drawArea(p);
+      if (q.persp) { a.persp = true; fitPersp(a, area); }
+      if (q.m.type === 'dxf' && it.den === 1) placeVpOrigin(a, p); else placeVp(a, area);
+      a.no = S.nextNo++; S.anns.push(a);
+    }
   });
   S.mediaDirty = true; save(); renderList(); redraw();
 }
@@ -2668,7 +2680,7 @@ async function loadSceneImage(file, ppm) {
   cx.putImageData(id, 0, 0);
   const cw = x1 - x0 + 1, ch = y1 - y0 + 1, out = document.createElement('canvas'); out.width = cw; out.height = ch;
   out.getContext('2d').drawImage(cv, x0, y0, cw, ch, 0, 0, cw, ch);
-  return {type: 'img', src: out.toDataURL('image/png'), wpx: cw, hpx: ch, x0, y0, ppm: ppm * k, file: file.name};
+  return {type: 'img', src: out.toDataURL('image/png'), wpx: cw, hpx: ch, x0, y0, ppm: ppm * k, W0: w, file: file.name};
 }
 async function importSkp(files) {
   if (!S.pdf) return toast('สร้างเอกสารใหม่หรือเปิดงานก่อน');
@@ -2680,18 +2692,30 @@ async function importSkp(files) {
   toast('กำลังนำเข้าโมเดล SketchUp…', 20000);
   const loaded = [];
   for (const sc of man.scenes) {
-    const f = byName.get(String(sc.file || '').toLowerCase()); if (!f || !(sc.ppm > 0)) continue;
-    const m = await loadSceneImage(f, sc.ppm); if (m) loaded.push({name: sc.name, den: Math.round(sc.den || denOf(S.page)), m});
+    const f = byName.get(String(sc.file || '').toLowerCase()); if (!f || !(sc.ppm > 0 || sc.persp)) continue;
+    const m = await loadSceneImage(f, sc.ppm || 1);
+    if (m) loaded.push({name: sc.name, den: Math.round(sc.den || denOf(S.page)), m, persp: !!sc.persp, sheet: sc.sheet || '', sheet_name: sc.sheet_name || '', slot: +sc.slot || 0});
   }
   if (!loaded.length) return toast('ไม่พบรูปของฉาก — เลือก .json พร้อมรูป .png ทุกไฟล์ในโฟลเดอร์เดียวกัน');
   let upd = 0; const fresh = [];
   for (const it of loaded) {   // same scene name = update the model in place (LayOut "update reference"); crop/scale/position kept
     const ex = S.anns.filter(a => a.type === 'vp' && a.name === it.name && S.media[a.mid] && S.media[a.mid].type === 'img');
-    if (ex.length) { const id = 'm' + uid(); S.media[id] = it.m; ex.forEach(a => { a.mid = id; }); upd++; } else fresh.push(it);
+    if (ex.length) {
+      const id = 'm' + uid(), old = S.media[ex[0].mid];
+      if (it.persp && old && old.W0) it.m.ppm = old.ppm * it.m.W0 / old.W0;   // keep the picture the same size on paper
+      S.media[id] = it.m; ex.forEach(a => { a.mid = id; }); upd++;
+    } else fresh.push(it);
   }
   if (upd) { S.mediaDirty = true; save(); redraw(); }
-  if (fresh.length) await addMediaPages(fresh);
-  toast(`โมเดล SketchUp${man.model ? ' ' + man.model : ''}: ${upd ? 'อัปเดต ' + upd + ' ฉาก · ' : ''}${fresh.length ? 'เพิ่ม ' + fresh.length + ' หน้า' : ''}`, 4000);
+  const pagesList = [], bySheet = new Map();   // furniture / interior sheets: all views on one page
+  for (const it of fresh) {
+    if (!it.sheet) { pagesList.push(it); continue; }
+    let g = bySheet.get(it.sheet);
+    if (!g) { g = {name: it.sheet_name || it.name, den: it.den, items: []}; bySheet.set(it.sheet, g); pagesList.push(g); }
+    g.items.push(it);
+  }
+  if (pagesList.length) await addMediaPages(pagesList);
+  toast(`โมเดล SketchUp${man.model ? ' ' + man.model : ''}: ${upd ? 'อัปเดต ' + upd + ' ฉาก · ' : ''}${pagesList.length ? 'เพิ่ม ' + pagesList.length + ' หน้า' : ''}`, 4000);
 }
 // ---- DXF
 async function readDxfText(f) {
