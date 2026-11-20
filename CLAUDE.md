@@ -87,3 +87,21 @@ F3 OSNAP · F8 ORTHO · F9 GRID · ←/→ เปลี่ยนหน้า · 
 ## 11. ข้อจำกัด / ไอเดียที่ยังไม่ได้ทำ
 - ทาขาว = ชั้นสีขาวทับ เส้นเดิมยังอยู่ข้างใต้ในไฟล์ · M ย้ายในหน้าเดียว (ข้ามหน้าใช้ Ctrl+X/V) · PDF สแกน (ภาพ) ไม่มีเส้นให้ OSNAP · ประวัติ undo ไม่ถูกเก็บข้ามการรีเฟรช
 - เคยเสนอไว้ (เจ้าของยังไม่สั่ง): polar tracking มุมอื่น, จุดอ้างอิงพิกัด (datum) สำหรับ AI, พิมพ์ระยะเป็นตัวเลขขณะลากเส้นแบบ AutoCAD
+
+## 12. PDF Cad Layout (`layout.html`) — โปรแกรมเขียนแบบแบบ SketchUp LayOut (20 พ.ย. 2026)
+เว็บ: https://designbykeng1-sudo.github.io/PDFCad/layout.html · **แยกจาก index.html** (PDF Cad เดิมยังใช้งานตามปกติ ไม่ถูกแตะ)
+- เป็น fork ของ index.html ทั้งไฟล์ (เครื่องมือ/OSNAP/บล็อก/เฟอร์นิเจอร์/ส่งออกเหมือนกัน) → **แก้บั๊กเครื่องมือที่ใช้ร่วมกัน ต้องแก้ทั้ง 2 ไฟล์**
+- กฎข้อ 1 ใช้เหมือนเดิมทุกข้อ (ไม่เรียก API/AI, ไม่ดึงอินเทอร์เน็ต, เครดิต) — การทำงานร่วมกับ Claude ใช้ **คัดลอกข้อความออก / วาง JSON เข้า** เท่านั้น
+- เอกสาร = PDF ใน `S.bytes` (หน้าเปล่าสร้างด้วย pdf-lib หรือคัดลอกหน้า 1 ของ PDF แม่แบบ `S.tpl` = กรอบ/ตารางชื่อแบบเป็นเวกเตอร์ในหน้า) → ทุกอย่างของ PDF Cad ใช้ต่อได้
+- `S.docId` (`doc:xxxx` เอกสารใหม่ / `pdf:ชื่อ:ขนาด` PDF ที่เปิด) = คีย์ออโต้เซฟ `lo1:<docId>` (+ `:m` = media แยกเก็บใน IndexedDB) · `lastPdf` เก็บ blob + docId + tpl
+- **หน้า** `restructure(order, cur)`: สร้าง PDF ใหม่ด้วย pdf-lib จาก order `[{src}|{src,dup}|{tpl}|{blank:[w,h]}]` (+ name/den) แล้ว remap `anns/scales/pnames` · ล้าง undo หลังจัดหน้า · `S.pnames` ชื่อหน้า
+- **เลเยอร์** `S.layers [{id,name,vis,lock,shared}]` · ทุกรายการมี `layer` · เลเยอร์แชร์ → `page = 0` (แสดงทุกหน้า) · ใช้ `onPg(a, p)` (หน้าตรง/แชร์ + มองเห็น) และ `editable(a)` (+ไม่ล็อก) **แทน `a.page === S.page` ทุกที่**
+- **ข้อความอัตโนมัติ** `autoText`: {ชื่อหน้า} {หน้า} {จำนวนหน้า} {มาตราส่วน} {วันที่} {โครงการ} (ใช้ `DRAW_PG` ตอนวาด/ส่งออก)
+- **viewport `vp`** {x,y,w,h = กรอบครอป, mid, den, cx,cy = จุดเนื้อหาที่กึ่งกลางกรอบ, frame, name} · `S.media[mid]` = `{type:'img', src, wpx,hpx, x0,y0, ppm}` (ฉาก SketchUp, หน่วยเนื้อหา = พิกเซลภาพเดิม) หรือ `{type:'dxf', pl:[[x,y,...]], tx:[[x,y,h,rot,text]], b, u}` (หน่วย = มม.จริง, y ลง) · `vpF(a)` = pt กระดาษต่อหน่วยเนื้อหา · ลากมุม = ครอป (เนื้อหาไม่ขยับ) · Alt+ลาก = เลื่อนภาพในกรอบ · เปลี่ยนมาตราส่วน = ขยายรอบจุดกลาง (และเปลี่ยนมาตราส่วนหน้าถ้าเท่ากัน) · วาด vp ก่อนเส้นอื่นเสมอ
+- **SketchUp**: DBK BIM (ส่วนขยาย SketchUp ของเจ้าของ, เมนู "ส่งออกไป PDF Cad Layout") ส่งออก PNG ต่อฉาก + `<model>_dbklayout.json` `{app:'DBK BIM', model, scenes:[{name,file,ppm,den,kind}]}` → `importSkp` ตัดขอบขาว/ทำพื้นขาวโปร่งใส แล้วฉากละ 1 หน้า (ชื่อหน้า = ชื่อฉาก) · นำเข้าซ้ำ = อัปเดตรูปใน vp ชื่อเดียวกัน (ครอป/ตำแหน่ง/สเกลคงเดิม)
+- **DXF** `parseDxf`: LINE LWPOLYLINE(bulge) POLYLINE CIRCLE ARC ELLIPSE SPLINE(ประมาณ) TEXT MTEXT INSERT(ซ้อน) DIMENSION · `$INSUNITS` · ภาษาไทย utf-8/windows-874/`\U+` · มาตราส่วน 1 = DXF ขนาดกระดาษ (จุด 0,0 = มุมล่างซ้ายกระดาษ) · OSNAP จับเส้น DXF ได้ (`dxfIndex`/`vpSnapSegs`) · **ส่งออก PDF เป็นเวกเตอร์จริง** (`exportVecVps`, ข้อความฝังฟอนต์ Sarabun) ส่วนอื่นยังเป็น overlay ภาพเหมือนเดิม
+- **Claude**: ไฟล์ ▾ → "คัดลอกข้อมูลหน้านี้" (`aiCopy`: แถว MARKUP/2 ของหน้า + รูปแบบ JSON ที่ให้ตอบ) / "วางคำสั่งวาดแบบ" (`aiPaste`: `{"units":"mm"|"m","items":[line rect circle arc pl text dim]}` มม.กระดาษจากมุมซ้ายบน)
+- งาน: ไฟล์ `.pclayout` = JSON {app:'pdfcad-layout', pdf base64, tpl base64, data = backupObj + media} (`saveProject`/`openProject`) · ลาก .pclayout/.dxf/manifest+png มาวางได้
+- ค่าเริ่มต้นต่างจาก PDF Cad: ปากกาสีดำ หนา 0.5 (สไลเดอร์ 0.1–5) · PDF สี ไม่ใส่เลข/หน้าสรุป/หน้า AI เว้นแต่ติ๊ก · ชื่อไฟล์ `.pdf` / `_เส้นดำ.pdf`
+- ทดสอบ: `CHROME=/usr/bin/google-chrome python dev/test_layout.py` (ใช้ `dev/layout_assets/`: แม่แบบ A3, DXF แปลน 1:100, ชุดส่งออก DBK BIM ปลอม) ต้อง `ALL PASS`, `page errors: none`, `outside requests: none` แล้วเปิดดู PDF ใน `dev/out/`
+- ยังไม่ได้ทำ (รอเจ้าของสั่ง): ตาราง, เส้นบอกขนาดแบบผูกกับ viewport, ส่งออก DXF, ส่งออกเส้น markup เป็นเวกเตอร์, ชั้นแสดงผลเส้นหนา/บางตามสไตล์ LayOut

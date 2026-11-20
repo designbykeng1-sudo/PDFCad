@@ -1,0 +1,1 @@
+{"app": "DBK BIM", "version": 1, "model": "test-house", "scenes": [{"name": "แปลนพื้นชั้น 1", "file": "plan_1.png", "ppm": 118.11, "den": 100, "kind": "plan"}, {"name": "รูปตัด A-A", "file": "sec_a.png", "ppm": 118.11, "den": 100, "kind": "section"}]}
