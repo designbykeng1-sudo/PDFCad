@@ -1,0 +1,1 @@
+{"app": "DBK BIM", "version": 1, "model": "test-house", "scenes": [{"name": "ภาพภายใน 1", "file": "f01_persp.png", "ppm": 0, "den": 100, "kind": "interior", "persp": true, "sheet": "I9", "sheet_name": "ภาพภายใน 1", "slot": 0}]}

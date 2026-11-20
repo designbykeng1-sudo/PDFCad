@@ -2714,6 +2714,9 @@ async function importSkp(files) {
     if (!g) { g = {name: it.sheet_name || it.name, den: it.den, items: []}; bySheet.set(it.sheet, g); pagesList.push(g); }
     g.items.push(it);
   }
+  for (let i = 0; i < pagesList.length; i++) {   // a sheet with one view (interior click view) = full page
+    const g = pagesList[i]; if (g.items && g.items.length === 1) pagesList[i] = Object.assign({}, g.items[0], {name: g.name, den: g.den});
+  }
   if (pagesList.length) await addMediaPages(pagesList);
   toast(`โมเดล SketchUp${man.model ? ' ' + man.model : ''}: ${upd ? 'อัปเดต ' + upd + ' ฉาก · ' : ''}${pagesList.length ? 'เพิ่ม ' + pagesList.length + ' หน้า' : ''}`, 4000);
 }

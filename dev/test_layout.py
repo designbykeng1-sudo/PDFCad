@@ -116,6 +116,10 @@ async def main():
         check('front view 1.2 m @1:20 = 60 mm', abs(fs['w'][0] - 60) < 2, fs['w'])
         await ev("goPage(S.n)"); await pg.wait_for_timeout(800)
         await pg.screenshot(path=os.path.join(OUT, 'layout_2b_furniture.png'))
+        # single interior view = full page
+        await pg.set_input_files('#fSkp', [os.path.join(A, f) for f in ('int_dbklayout.json', 'f01_persp.png')]); await pg.wait_for_timeout(2000)
+        iv = await ev("(()=>{const v=S.anns.filter(a=>a.type==='vp'&&a.page===S.n); const A=drawArea(S.n); return {n:S.n, k:v.length, fill:v.length&&+Math.max(v[0].w/A.w, v[0].h/A.h).toFixed(2), name:pageName(S.n)}})()")
+        check('interior view = 1 full page', iv['n'] == 7 and iv['k'] == 1 and iv['fill'] > 0.95 and iv['name'] == 'ภาพภายใน 1', iv)
 
         # --- Claude bridge
         await pg.click('#bDocMenu'); await pg.click('#mAiCopy'); await pg.wait_for_timeout(300)
